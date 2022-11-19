@@ -9,6 +9,7 @@ export class App extends Component {
     images: [],
     query: '',
     page: 1,
+    totalHits: 0,
   };
 
   handleSubmitForm = query => {
@@ -25,6 +26,10 @@ export class App extends Component {
       fetchImages(query, page).then(data => {
         this.setState(prev => ({
           images: page === 1 ? data.hits : [...prev.images, ...data.hits],
+          totalHits:
+            page === 1
+              ? data.totalHits - data.hits.length
+              : data.totalHits - [...prev.images, ...data.hits].length,
         }));
       });
     }
@@ -35,7 +40,9 @@ export class App extends Component {
       <>
         <SearchBar onSubmit={this.handleSubmitForm} />
         <ImageGallery images={this.state.images} />
-        <LoadMore onLoadMore={this.handleLoadMore} />
+        {!!this.state.totalHits && (
+          <LoadMore onLoadMore={this.handleLoadMore} />
+        )}
       </>
     );
   }
